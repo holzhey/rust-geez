@@ -3,42 +3,41 @@ use ggez::graphics::{self, Color};
 use ggez::{Context, ContextBuilder, GameResult};
 
 fn main() {
-    // Make a Context.
     let (mut ctx, event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
         .build()
         .expect("aieee, could not create ggez context!");
-
-    // Create an instance of your event handler.
-    // Usually, you should provide it with the Context object to
-    // use when setting your game up.
     let my_game = MyGame::new(&mut ctx);
-
-    // Run!
     event::run(ctx, event_loop, my_game);
 }
 
 struct MyGame {
-    // Your state here...
+    x: f32,
+    y: f32,
 }
 
 impl MyGame {
     pub fn new(_ctx: &mut Context) -> MyGame {
-        // Load/create resources such as images here.
-        MyGame {
-            // ...
-        }
+        MyGame { x: 10.0, y: 10.0 }
     }
 }
 
 impl EventHandler for MyGame {
     fn update(&mut self, _ctx: &mut Context) -> GameResult {
-        // Update code here...
+        self.x += 1.0;
+        self.y += 1.0;
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        let mut canvas = graphics::Canvas::from_frame(ctx, Color::WHITE);
-        // Draw code here...
+        let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLUE);
+        let rect = graphics::Rect::new(self.x, self.y, self.x + 20.0, self.y + 20.0);
+        canvas.draw(
+            &graphics::Quad,
+            graphics::DrawParam::new()
+                .dest(rect.point())
+                .scale(rect.size())
+                .color(Color::WHITE),
+        );
         canvas.finish(ctx)
     }
 }
