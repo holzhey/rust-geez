@@ -1,5 +1,6 @@
 use ggez::event::{self, EventHandler};
 use ggez::graphics::{self, Color};
+use ggez::mint::{Point2, Vector2};
 use ggez::{Context, ContextBuilder, GameResult};
 
 fn main() {
@@ -24,18 +25,24 @@ impl MyGame {
 impl EventHandler for MyGame {
     fn update(&mut self, _ctx: &mut Context) -> GameResult {
         self.x += 1.0;
-        self.y += 1.0;
+        if self.x > _ctx.gfx.window().inner_size().width as f32 {
+            self.x = 0.0;
+        }
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLUE);
-        let rect = graphics::Rect::new(self.x, self.y, self.x + 20.0, self.y + 20.0);
+        let p = Point2::<f32> {
+            x: self.x,
+            y: self.y,
+        };
+        let v = Vector2::<f32> { x: 2.0, y: 2.0 };
         canvas.draw(
             &graphics::Quad,
             graphics::DrawParam::new()
-                .dest(rect.point())
-                .scale(rect.size())
+                .dest(p)
+                .scale(v)
                 .color(Color::WHITE),
         );
         canvas.finish(ctx)
