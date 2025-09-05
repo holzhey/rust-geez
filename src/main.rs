@@ -2,6 +2,7 @@ use ggez::event::{self, EventHandler};
 use ggez::graphics::{self, Color};
 use ggez::mint::{Point2, Vector2};
 use ggez::{Context, ContextBuilder, GameResult};
+use rand::Rng;
 
 fn main() {
     let (mut ctx, event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
@@ -23,12 +24,17 @@ struct MyGame {
 
 impl MyGame {
     pub fn new(_ctx: &mut Context) -> MyGame {
-        let star = Star {
-            x: 10.0,
-            y: 10.0,
-            ix: 1.0,
-        };
-        MyGame { stars: vec![star] }
+        let mut rng = rand::rng();
+        let mut stars: Vec<Star> = Vec::new();
+        for num in 0..300 {
+            let star = Star {
+                x: rng.random_range(1..200) as f32,
+                y: num as f32,
+                ix: rng.random_range(1..5) as f32,
+            };
+            stars.push(star);
+        }
+        MyGame { stars }
     }
 }
 
