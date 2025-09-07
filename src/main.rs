@@ -5,7 +5,7 @@ use ggez::{Context, ContextBuilder, GameResult};
 use rand::Rng;
 
 fn main() {
-    let (mut ctx, event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
+    let (mut ctx, event_loop) = ContextBuilder::new("starfield", "StarField POC")
         .build()
         .expect("aieee, could not create ggez context!");
     let my_game = MyGame::new(&mut ctx);
