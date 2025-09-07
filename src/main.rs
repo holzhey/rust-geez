@@ -23,12 +23,14 @@ struct MyGame {
 }
 
 impl MyGame {
-    pub fn new(_ctx: &mut Context) -> MyGame {
+    pub fn new(ctx: &mut Context) -> MyGame {
         let mut rng = rand::rng();
         let mut stars: Vec<Star> = Vec::new();
-        for num in 0..300 {
+        let width = ctx.gfx.window().inner_size().width;
+        let height = ctx.gfx.window().inner_size().height;
+        for num in 0..height {
             let star = Star {
-                x: rng.random_range(1..200) as f32,
+                x: rng.random_range(0..width) as f32,
                 y: num as f32,
                 ix: rng.random_range(1..5) as f32,
             };
