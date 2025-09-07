@@ -52,19 +52,20 @@ impl EventHandler for MyGame {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLUE);
+        let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
         let scale = Vector2::<f32> { x: 2.0, y: 2.0 };
         for star in &self.stars {
             let p = Point2::<f32> {
                 x: star.x,
                 y: star.y,
             };
+            let lum = 255 - ((5 - star.ix as u8) * 20);
             canvas.draw(
                 &graphics::Quad,
                 graphics::DrawParam::new()
                     .dest(p)
                     .scale(scale)
-                    .color(Color::WHITE),
+                    .color(Color::from_rgb(lum, lum, lum)),
             );
         }
         canvas.finish(ctx)
