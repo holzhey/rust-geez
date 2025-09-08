@@ -13,9 +13,27 @@ fn main() {
 }
 
 struct Star {
-    x: f32,
-    y: f32,
-    ix: f32,
+    x: u32,
+    y: u32,
+    depth: u32,
+}
+
+impl Star {
+    pub fn new(x: u32, y: u32, depth: u32) -> Self {
+        Star { x, y, depth }
+    }
+
+    pub fn get_point(&self) -> Point2<f32> {
+        Point2::<f32> {
+            x: self.x as f32,
+            y: self.y as f32,
+        }
+    }
+
+    fn get_color(&self) -> Color {
+        let lum = 255 - ((5 - self.depth as u8) * 20);
+        Color::from_rgb(lum, lum, lum)
+    }
 }
 
 struct MyGame {
@@ -28,25 +46,20 @@ impl MyGame {
         let mut stars: Vec<Star> = Vec::new();
         let width = ctx.gfx.window().inner_size().width;
         let height = ctx.gfx.window().inner_size().height;
-        for num in 0..height {
-            let star = Star {
-                x: rng.random_range(0..width) as f32,
-                y: num as f32,
-                ix: rng.random_range(1..5) as f32,
-            };
-            stars.push(star);
+        for line in 0..height {
+            let x: u32 = rng.random_range(0..width);
+            let depth: u32 = rng.random_range(1..5);
+            stars.push(Star::new(x, line, depth));
         }
         MyGame { stars }
     }
 }
 
 impl EventHandler for MyGame {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult {
+    fn update(&mut self, ctx: &mut Context) -> GameResult {
+        let width = ctx.gfx.window().inner_size().width;
         for star in &mut self.stars {
-            star.x += star.ix;
-            if star.x > _ctx.gfx.window().inner_size().width as f32 {
-                star.x = 0.0;
-            }
+            star.x = (star.x + star.depth) % width;
         }
         Ok(())
     }
@@ -55,17 +68,12 @@ impl EventHandler for MyGame {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
         let scale = Vector2::<f32> { x: 2.0, y: 2.0 };
         for star in &self.stars {
-            let p = Point2::<f32> {
-                x: star.x,
-                y: star.y,
-            };
-            let lum = 255 - ((5 - star.ix as u8) * 20);
             canvas.draw(
                 &graphics::Quad,
                 graphics::DrawParam::new()
-                    .dest(p)
+                    .dest(star.get_point())
                     .scale(scale)
-                    .color(Color::from_rgb(lum, lum, lum)),
+                    .color(star.get_color()),
             );
         }
         canvas.finish(ctx)
