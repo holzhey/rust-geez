@@ -1,7 +1,8 @@
+use ggez::context::Has;
 use ggez::event::{self, EventHandler};
-use ggez::graphics::{self, Color};
+use ggez::graphics::{self, Color, DrawParam, Drawable, Image, ImageFormat};
 use ggez::mint::{Point2, Vector2};
-use ggez::{Context, ContextBuilder, GameResult};
+use ggez::{Context, ContextBuilder, GameResult, glam};
 use rand::Rng;
 
 fn main() {
@@ -53,29 +54,35 @@ impl MyGame {
         }
         MyGame { stars }
     }
+
+    fn get_pixels(&self, width: u32, height: u32) -> Vec<u8> {
+        let pixels: Vec<u8> = vec![0; (width * height * 4) as usize];
+
+        pixels
+    }
 }
 
 impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         let width = ctx.gfx.window().inner_size().width;
         for star in &mut self.stars {
-            star.x = (star.x + star.depth) % width;
+            star.x += star.depth;
+            star.x %= width;
         }
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
-        let scale = Vector2::<f32> { x: 2.0, y: 2.0 };
-        for star in &self.stars {
-            canvas.draw(
-                &graphics::Quad,
-                graphics::DrawParam::new()
-                    .dest(star.get_point())
-                    .scale(scale)
-                    .color(star.get_color()),
-            );
-        }
+
+        let width = ctx.gfx.window().inner_size().width;
+        let height = ctx.gfx.window().inner_size().height;
+
+        let pixels = self.get_pixels(width, height);
+
+        let image = Image::from_pixels(ctx, &pixels, ImageFormat::Rgba8Uint, width, height);
+        image.draw(&mut canvas, DrawParam::default());
+
         canvas.finish(ctx)
     }
 }
