@@ -49,7 +49,7 @@ impl MyGame {
             let position = (star.y * 4 * width + star.x * 4) as usize;
             for pos in position..position + 4 {
                 if let Some(pixel) = pixels.get_mut(pos) {
-                    *pixel = 255;
+                    *pixel = 120 + (star.depth * 32) as u8;
                 }
             }
         }
