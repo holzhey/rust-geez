@@ -1,8 +1,6 @@
-use ggez::context::Has;
 use ggez::event::{self, EventHandler};
 use ggez::graphics::{self, Color, DrawParam, Drawable, Image, ImageFormat};
-use ggez::mint::{Point2, Vector2};
-use ggez::{Context, ContextBuilder, GameResult, glam};
+use ggez::{Context, ContextBuilder, GameResult};
 use rand::Rng;
 
 fn main() {
@@ -23,18 +21,6 @@ impl Star {
     pub fn new(x: u32, y: u32, depth: u32) -> Self {
         Star { x, y, depth }
     }
-
-    pub fn get_point(&self) -> Point2<f32> {
-        Point2::<f32> {
-            x: self.x as f32,
-            y: self.y as f32,
-        }
-    }
-
-    fn get_color(&self) -> Color {
-        let lum = 255 - ((5 - self.depth as u8) * 20);
-        Color::from_rgb(lum, lum, lum)
-    }
 }
 
 struct MyGame {
@@ -48,16 +34,25 @@ impl MyGame {
         let width = ctx.gfx.window().inner_size().width;
         let height = ctx.gfx.window().inner_size().height;
         for line in 0..height {
-            let x: u32 = rng.random_range(0..width);
-            let depth: u32 = rng.random_range(1..5);
-            stars.push(Star::new(x, line, depth));
+            for _repeat in 0..2 {
+                let x: u32 = rng.random_range(0..width);
+                let depth: u32 = rng.random_range(1..5);
+                stars.push(Star::new(x, line, depth));
+            }
         }
         MyGame { stars }
     }
 
     fn get_pixels(&self, width: u32, height: u32) -> Vec<u8> {
-        let pixels: Vec<u8> = vec![0; (width * height * 4) as usize];
-
+        let mut pixels: Vec<u8> = vec![0; (width * height * 4) as usize];
+        for star in &self.stars {
+            let position = (star.y * 4 * width + star.x * 4) as usize;
+            for pos in position..position + 4 {
+                if let Some(pixel) = pixels.get_mut(pos) {
+                    *pixel = 255;
+                }
+            }
+        }
         pixels
     }
 }
@@ -80,7 +75,7 @@ impl EventHandler for MyGame {
 
         let pixels = self.get_pixels(width, height);
 
-        let image = Image::from_pixels(ctx, &pixels, ImageFormat::Rgba8Uint, width, height);
+        let image = Image::from_pixels(ctx, &pixels, ImageFormat::Rgba8Unorm, width, height);
         image.draw(&mut canvas, DrawParam::default());
 
         canvas.finish(ctx)
