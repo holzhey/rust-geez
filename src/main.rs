@@ -3,12 +3,10 @@ use ggez::graphics::{self, Color, DrawParam, Drawable, Image, ImageFormat};
 use ggez::{Context, ContextBuilder, GameResult};
 use rand::Rng;
 
-fn main() {
-    let (mut ctx, event_loop) = ContextBuilder::new("starfield", "StarField POC")
-        .build()
-        .expect("aieee, could not create ggez context!");
-    let my_game = MyGame::new(&mut ctx);
-    event::run(ctx, event_loop, my_game);
+fn main() -> GameResult {
+    let (mut ctx, event_loop) = ContextBuilder::new("starfield", "StarField POC").build()?;
+    let starfield = Starfield::new(&mut ctx);
+    event::run(ctx, event_loop, starfield);
 }
 
 struct Star {
@@ -23,16 +21,15 @@ impl Star {
     }
 }
 
-struct MyGame {
+struct Starfield {
     stars: Vec<Star>,
 }
 
-impl MyGame {
-    pub fn new(ctx: &mut Context) -> MyGame {
+impl Starfield {
+    pub fn new(ctx: &mut Context) -> Starfield {
         let mut rng = rand::rng();
         let mut stars: Vec<Star> = Vec::new();
-        let width = ctx.gfx.window().inner_size().width;
-        let height = ctx.gfx.window().inner_size().height;
+        let (width, height) = Self::get_window_sizes(ctx);
         for line in 0..height {
             for _repeat in 0..2 {
                 let x: u32 = rng.random_range(0..width);
@@ -40,7 +37,7 @@ impl MyGame {
                 stars.push(Star::new(x, line, depth));
             }
         }
-        MyGame { stars }
+        Starfield { stars }
     }
 
     fn get_pixels(&self, width: u32, height: u32) -> Vec<u8> {
@@ -55,11 +52,18 @@ impl MyGame {
         }
         pixels
     }
+
+    fn get_window_sizes(ctx: &Context) -> (u32, u32) {
+        (
+            ctx.gfx.window().inner_size().width,
+            ctx.gfx.window().inner_size().height,
+        )
+    }
 }
 
-impl EventHandler for MyGame {
+impl EventHandler for Starfield {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        let width = ctx.gfx.window().inner_size().width;
+        let (width, _height) = Self::get_window_sizes(ctx);
         for star in &mut self.stars {
             star.x += star.depth;
             star.x %= width;
@@ -70,9 +74,7 @@ impl EventHandler for MyGame {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(ctx, Color::BLACK);
 
-        let width = ctx.gfx.window().inner_size().width;
-        let height = ctx.gfx.window().inner_size().height;
-
+        let (width, height) = Self::get_window_sizes(ctx);
         let pixels = self.get_pixels(width, height);
 
         let image = Image::from_pixels(ctx, &pixels, ImageFormat::Rgba8Unorm, width, height);
