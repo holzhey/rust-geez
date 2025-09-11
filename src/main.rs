@@ -6,7 +6,7 @@ use rand::Rng;
 
 fn main() -> GameResult {
     let mut conf = Conf::new();
-    conf.window_setup = conf.window_setup.title("Starfield");
+    conf.window_setup = conf.window_setup.vsync(true).title("Starfield");
     let (mut ctx, event_loop) = ContextBuilder::new("starfield", "StarField POC")
         .default_conf(conf)
         .build()?;
