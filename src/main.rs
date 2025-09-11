@@ -1,10 +1,15 @@
+use ggez::conf::Conf;
 use ggez::event::{self, EventHandler};
 use ggez::graphics::{self, Color, DrawParam, Drawable, Image, ImageFormat};
 use ggez::{Context, ContextBuilder, GameResult};
 use rand::Rng;
 
 fn main() -> GameResult {
-    let (mut ctx, event_loop) = ContextBuilder::new("starfield", "StarField POC").build()?;
+    let mut conf = Conf::new();
+    conf.window_setup = conf.window_setup.title("Starfield");
+    let (mut ctx, event_loop) = ContextBuilder::new("starfield", "StarField POC")
+        .default_conf(conf)
+        .build()?;
     let starfield = Starfield::new(&mut ctx);
     event::run(ctx, event_loop, starfield);
 }
